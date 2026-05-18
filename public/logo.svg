@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="cellab">
+  <title>cellab</title>
+  <style>
+    .frame { stroke: #b9bfd2; }
+    .live { fill: #5358d4; }
+    .dead { fill: #c7ccdc; }
+    @media (prefers-color-scheme: dark) {
+      .frame { stroke: #46506a; }
+      .live { fill: #8b8ff8; }
+      .dead { fill: #2f3750; }
+    }
+  </style>
+  <rect class="frame" x="5" y="5" width="38" height="38" rx="9" fill="none" stroke-width="2.6" />
+  <!-- グライダー: ライフで最小の動く図形 -->
+  <rect class="dead" x="10.8" y="10.8" width="7.4" height="7.4" rx="2.1" />
+  <rect class="live" x="19.8" y="10.8" width="7.4" height="7.4" rx="2.1" />
+  <rect class="dead" x="28.8" y="10.8" width="7.4" height="7.4" rx="2.1" />
+  <rect class="dead" x="10.8" y="19.8" width="7.4" height="7.4" rx="2.1" />
+  <rect class="dead" x="19.8" y="19.8" width="7.4" height="7.4" rx="2.1" />
+  <rect class="live" x="28.8" y="19.8" width="7.4" height="7.4" rx="2.1" />
+  <rect class="live" x="10.8" y="28.8" width="7.4" height="7.4" rx="2.1" />
+  <rect class="live" x="19.8" y="28.8" width="7.4" height="7.4" rx="2.1" />
+  <rect class="live" x="28.8" y="28.8" width="7.4" height="7.4" rx="2.1" />
+</svg>
