@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="cellab">
+  <title>cellab</title>
+  <style>
+    .frame { stroke: #b9bfd2; }
+    .live { fill: #5358d4; }
+    @media (prefers-color-scheme: dark) {
+      .frame { stroke: #46506a; }
+      .live { fill: #8b8ff8; }
+    }
+  </style>
+  <rect class="frame" x="3" y="3" width="26" height="26" rx="6.5" fill="none" stroke-width="2.2" />
+  <!-- グライダーの5セル -->
+  <rect class="live" x="13" y="6.5" width="5.5" height="5.5" rx="1.6" />
+  <rect class="live" x="19.5" y="13" width="5.5" height="5.5" rx="1.6" />
+  <rect class="live" x="6.5" y="19.5" width="5.5" height="5.5" rx="1.6" />
+  <rect class="live" x="13" y="19.5" width="5.5" height="5.5" rx="1.6" />
+  <rect class="live" x="19.5" y="19.5" width="5.5" height="5.5" rx="1.6" />
+</svg>
