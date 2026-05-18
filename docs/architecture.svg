@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 530" role="img" aria-labelledby="arch-title arch-desc" font-family="'Hiragino Sans','Noto Sans JP',system-ui,sans-serif">
+  <title id="arch-title">cellabのアーキテクチャ</title>
+  <desc id="arch-desc">main.tsがAppを起動し、Appが状態機械Labを介して描画層(src/ui)と中核ロジック(src/lib)を仲介する。状態はURLで共有・復元し、表示の好みはlocalStorageに保存する。</desc>
+  <style>
+    .panel { fill: none; stroke: #ccd2dd; stroke-width: 1.5; stroke-dasharray: 6 5; }
+    .node { fill: #ffffff; stroke: #d8dde6; stroke-width: 1.5; }
+    .accent { fill: #e9eafc; stroke: #5358d4; stroke-width: 1.5; }
+    .lbl { fill: #1a1f2e; font-size: 15px; font-weight: 600; }
+    .sub { fill: #59607a; font-size: 12px; }
+    .tag { fill: #59607a; font-size: 12px; font-weight: 600; letter-spacing: .04em; }
+    .edge { stroke: #aab2c0; stroke-width: 1.6; fill: none; }
+    .edge-lbl { fill: #59607a; font-size: 11px; }
+    @media (prefers-color-scheme: dark) {
+      .panel { stroke: #39414f; }
+      .node { fill: #161a25; stroke: #2a3142; }
+      .accent { fill: #1d2236; stroke: #8b8ff8; }
+      .lbl { fill: #e9ecf5; }
+      .sub, .tag, .edge-lbl { fill: #99a3b4; }
+      .edge { stroke: #56607a; }
+    }
+  </style>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#aab2c0" />
+    </marker>
+  </defs>
+
+  <rect class="node" x="310" y="18" width="200" height="44" rx="11" />
+  <text class="lbl" x="410" y="40" text-anchor="middle">main.ts</text>
+  <text class="sub" x="410" y="56" text-anchor="middle">#app にマウント</text>
+
+  <rect class="accent" x="294" y="90" width="232" height="56" rx="12" />
+  <text class="lbl" x="410" y="113" text-anchor="middle">App (app.ts)</text>
+  <text class="sub" x="410" y="132" text-anchor="middle">操作・再生ループ・テーマ・共有</text>
+
+  <rect class="node" x="54" y="97" width="160" height="46" rx="11" />
+  <text class="lbl" x="134" y="118" text-anchor="middle" font-size="13">URL #2d~ / #1d~</text>
+  <text class="sub" x="134" y="134" text-anchor="middle">状態を共有・復元</text>
+
+  <rect class="node" x="606" y="97" width="160" height="46" rx="11" />
+  <text class="lbl" x="686" y="118" text-anchor="middle" font-size="13">localStorage</text>
+  <text class="sub" x="686" y="134" text-anchor="middle">配色・速度・グリッド</text>
+
+  <rect class="accent" x="310" y="168" width="200" height="50" rx="12" />
+  <text class="lbl" x="410" y="190" text-anchor="middle" font-size="14">Lab (lab.ts)</text>
+  <text class="sub" x="410" y="208" text-anchor="middle">2次元/1次元の状態機械</text>
+
+  <rect class="panel" x="44" y="246" width="346" height="258" rx="14" />
+  <text class="tag" x="62" y="270">描画層 — src/ui</text>
+
+  <rect class="node" x="66" y="292" width="150" height="80" rx="11" />
+  <text class="lbl" x="141" y="326" text-anchor="middle" font-size="14">field</text>
+  <text class="sub" x="141" y="346" text-anchor="middle">2次元盤(キャンバス)</text>
+
+  <rect class="node" x="224" y="292" width="144" height="80" rx="11" />
+  <text class="lbl" x="296" y="326" text-anchor="middle" font-size="14">diagram</text>
+  <text class="sub" x="296" y="346" text-anchor="middle">1次元の時空図</text>
+
+  <rect class="node" x="66" y="388" width="150" height="80" rx="11" />
+  <text class="lbl" x="141" y="422" text-anchor="middle" font-size="14">icons</text>
+  <text class="sub" x="141" y="442" text-anchor="middle">操作アイコン(SVG)</text>
+
+  <rect class="node" x="224" y="388" width="144" height="80" rx="11" />
+  <text class="lbl" x="296" y="422" text-anchor="middle" font-size="13">キーボード</text>
+  <text class="sub" x="296" y="442" text-anchor="middle">再生・1手・描画</text>
+
+  <rect class="panel" x="430" y="246" width="346" height="258" rx="14" />
+  <text class="tag" x="448" y="270">中核ロジック — src/lib(テスト済み)</text>
+
+  <rect class="node" x="452" y="290" width="150" height="56" rx="11" />
+  <text class="lbl" x="527" y="314" text-anchor="middle" font-size="14">grid / life</text>
+  <text class="sub" x="527" y="332" text-anchor="middle">盤面・近傍・世代</text>
+
+  <rect class="node" x="614" y="290" width="150" height="56" rx="11" />
+  <text class="lbl" x="689" y="314" text-anchor="middle" font-size="14">elementary</text>
+  <text class="sub" x="689" y="332" text-anchor="middle">1次元の基本CA</text>
+
+  <rect class="node" x="452" y="358" width="150" height="56" rx="11" />
+  <text class="lbl" x="527" y="382" text-anchor="middle" font-size="13">rule / rle / patterns</text>
+  <text class="sub" x="527" y="400" text-anchor="middle">記法・図形・既定形</text>
+
+  <rect class="node" x="614" y="358" width="150" height="56" rx="11" />
+  <text class="lbl" x="689" y="382" text-anchor="middle" font-size="14">analysis / rng</text>
+  <text class="sub" x="689" y="400" text-anchor="middle">周期判定・乱数</text>
+
+  <rect class="node" x="452" y="426" width="312" height="52" rx="11" />
+  <text class="lbl" x="608" y="448" text-anchor="middle" font-size="13">share — 状態の連長符号</text>
+  <text class="sub" x="608" y="466" text-anchor="middle">盤面・ルール・種をURLへ</text>
+
+  <path class="edge" d="M410 62 L410 88" marker-end="url(#arr)" />
+  <path class="edge" d="M294 119 L216 120" marker-end="url(#arr)" />
+  <path class="edge" d="M526 119 L604 120" marker-end="url(#arr)" />
+  <path class="edge" d="M410 146 L410 166" marker-end="url(#arr)" />
+  <path class="edge" d="M338 218 L250 244" marker-end="url(#arr)" />
+  <path class="edge" d="M482 218 L566 244" marker-end="url(#arr)" />
+  <text class="edge-lbl" x="270" y="238" text-anchor="middle">描画</text>
+  <text class="edge-lbl" x="548" y="238" text-anchor="middle">計算</text>
+</svg>
