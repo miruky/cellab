@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatRule, parseRule } from './rule';
+import { formatRule, parseRule, RULE_PRESETS } from './rule';
 
 describe('parseRule', () => {
   it('B/S記法を解析する', () => {
@@ -39,5 +39,22 @@ describe('parseRule', () => {
 describe('formatRule', () => {
   it('近傍数を昇順に並べた正規形を返す', () => {
     expect(formatRule({ birth: new Set([6, 3]), survival: new Set([3, 2]) })).toBe('B36/S23');
+  });
+});
+
+describe('RULE_PRESETS', () => {
+  it('すべてのプリセットは解析でき、往復しても変わらない', () => {
+    for (const preset of RULE_PRESETS) {
+      const parsed = parseRule(preset.rule);
+      // プリセットは正規形(昇順)で書かれているので、往復で一致する
+      expect(formatRule(parsed)).toBe(preset.rule);
+      expect(preset.name).not.toBe('');
+      expect(preset.note).not.toBe('');
+    }
+  });
+
+  it('名前に重複がない', () => {
+    const names = RULE_PRESETS.map((p) => p.name);
+    expect(new Set(names).size).toBe(names.length);
   });
 });
