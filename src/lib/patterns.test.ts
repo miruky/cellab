@@ -35,7 +35,7 @@ describe('既定パターン', () => {
   });
 
   it('静物は周期1で安定する', () => {
-    for (const id of ['block', 'beehive', 'loaf', 'boat']) {
+    for (const id of ['block', 'beehive', 'loaf', 'boat', 'tub', 'ship', 'pond']) {
       const result = classify(place(id, 3), conway, 'bounded');
       expect(result, id).toEqual({ kind: 'still', period: 1 });
     }
@@ -47,6 +47,23 @@ describe('既定パターン', () => {
       const result = classify(place(id, 4), conway, 'bounded');
       expect(result, id).toEqual({ kind: 'oscillator', period });
     }
+  });
+
+  it('ペンタデカスロンは周期15の振動子', () => {
+    // 周期中に縦へ伸びるので広めの余白に置く
+    const result = classify(place('pentadecathlon', 10), conway, 'bounded', 30);
+    expect(result).toEqual({ kind: 'oscillator', period: 15 });
+  });
+
+  it('中量級宇宙船は4世代で形を保ったまま水平に2マス進む', () => {
+    let g = place('mwss', 20);
+    const before = g.boundingBox()!;
+    const beforeShape = shape(g);
+    for (let i = 0; i < 4; i++) g = step(g, conway, 'bounded');
+    const after = g.boundingBox()!;
+    expect(shape(g)).toBe(beforeShape);
+    expect(Math.abs(after.minX - before.minX)).toBe(2);
+    expect(after.minY - before.minY).toBe(0);
   });
 
   it('グライダーは4世代で形を保ったまま斜めに1マス進む', () => {
