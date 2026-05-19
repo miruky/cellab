@@ -9,6 +9,7 @@ import {
   Grid,
   mulberry32,
   parseRule,
+  parseRle,
   formatRule,
   step as stepLife,
   type Rule,
@@ -37,6 +38,16 @@ export interface LabConfig {
 
 export const DEFAULT_CONFIG: LabConfig = { cols: 64, rows: 48, historyRows: 96 };
 
+// 「1世代戻る」ために保持する直前の状態。2次元は盤の写し、1次元は時空図の写しを持つ。
+interface PastFrame {
+  grid?: Grid;
+  rows?: Uint8Array[];
+  generation: number;
+}
+
+// 戻れる世代数の上限。盤の写しを溜めるのでメモリと相談してこの辺に切る。
+const MAX_PAST = 120;
+
 // 1次元の初期行を種から作る。乱数はシードで再現できるようにしてある。
 function makeSeedRow(width: number, kind: SeedKind, seed: number): Uint8Array {
   return kind === 'random' ? randomRow(width, 0.5, mulberry32(seed)) : centeredRow(width);
@@ -61,6 +72,8 @@ export class Lab {
   history: Uint8Array[] = [];
 
   generation = 0;
+
+  private past: PastFrame[] = [];
 
   private listeners = new Set<() => void>();
 
@@ -89,21 +102,49 @@ export class Lab {
     if (this.mode === mode) return;
     this.mode = mode;
     this.generation = 0;
+    this.past = [];
     if (mode === '1d') this.resetElementary();
     this.emit();
   }
 
+  // 戻る用に今の状態を控える。古い分は上限を超えたら捨てる。
+  private record(): void {
+    const frame: PastFrame =
+      this.mode === '2d'
+        ? { grid: this.grid.clone(), generation: this.generation }
+        : { rows: this.history.map((r) => r.slice()), generation: this.generation };
+    this.past.push(frame);
+    if (this.past.length > MAX_PAST) this.past.shift();
+  }
+
   step(): void {
     if (this.mode === '2d') {
+      this.record();
       this.grid = stepLife(this.grid, this.rule, this.topology);
     } else {
       const last = this.history[this.history.length - 1];
       if (!last) return;
+      this.record();
       const next = stepElementaryRow(last, this.elementaryRule, this.wrap1d);
       this.history.push(next);
       if (this.history.length > this.config.historyRows) this.history.shift();
     }
     this.generation++;
+    this.emit();
+  }
+
+  /** 直前の世代へ戻れるか。 */
+  canBack(): boolean {
+    return this.past.length > 0;
+  }
+
+  /** 1世代戻す。控えが無ければ何もしない。手で描いた変更は戻すと失われる。 */
+  back(): void {
+    const frame = this.past.pop();
+    if (!frame) return;
+    if (frame.grid) this.grid = frame.grid;
+    if (frame.rows) this.history = frame.rows;
+    this.generation = frame.generation;
     this.emit();
   }
 
@@ -115,6 +156,7 @@ export class Lab {
       this.resetElementary();
     }
     this.generation = 0;
+    this.past = [];
     this.emit();
   }
 
@@ -155,7 +197,30 @@ export class Lab {
   randomize(density = 0.32, seed = (Math.random() * 0xffffffff) >>> 0): void {
     this.grid.randomize(density, mulberry32(seed));
     this.generation = 0;
+    this.past = [];
     this.emit();
+  }
+
+  /**
+   * RLE文字列を取り込んで2次元の盤に中央寄せで載せる。ルールが書かれていれば適用する。
+   * 不正な文字列のときは parseRle が投げるので、呼び出し側で握って画面に出す。
+   */
+  importRle(text: string): { name?: string } {
+    const parsed = parseRle(text);
+    this.mode = '2d';
+    if (parsed.rule) {
+      this.rule = parsed.rule;
+      this.ruleText = formatRule(parsed.rule);
+    }
+    const grid = new Grid(this.config.cols, this.config.rows);
+    const ox = Math.floor((this.config.cols - parsed.grid.width) / 2);
+    const oy = Math.floor((this.config.rows - parsed.grid.height) / 2);
+    grid.stamp(parsed.grid, ox, oy, 'set');
+    this.grid = grid;
+    this.generation = 0;
+    this.past = [];
+    this.emit();
+    return { name: parsed.name };
   }
 
   /** パターンを (cx, cy) を中心に置く。盤からはみ出す分は切り捨てられる。 */
@@ -195,6 +260,7 @@ export class Lab {
   resetElementary(): void {
     this.history = [makeSeedRow(this.config.cols, this.seedKind, this.seedValue)];
     this.generation = 0;
+    this.past = [];
   }
 
   // ---- 共有 ----
@@ -203,7 +269,12 @@ export class Lab {
     if (this.mode === '2d') {
       return { mode: '2d', rule: this.ruleText, topology: this.topology, grid: this.grid.clone() };
     }
-    return { mode: '1d', rule: this.elementaryRule, seed: this.seedKind, seedValue: this.seedValue };
+    return {
+      mode: '1d',
+      rule: this.elementaryRule,
+      seed: this.seedKind,
+      seedValue: this.seedValue,
+    };
   }
 
   loadState(state: LabState): void {
@@ -223,6 +294,7 @@ export class Lab {
       this.resetElementary();
     }
     this.generation = 0;
+    this.past = [];
     this.emit();
   }
 }

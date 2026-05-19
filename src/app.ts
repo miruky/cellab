@@ -67,16 +67,18 @@ export function mountApp(root: HTMLElement): void {
             <button class="seg" data-mode="2d" role="tab">${icon('grid')}<span>ライフ系</span></button>
             <button class="seg" data-mode="1d" role="tab">${icon('rows')}<span>基本CA</span></button>
           </div>
+          <button class="ghost icon-only" type="button" data-act="help" aria-label="キーボード操作を見る" title="キーボード操作 (?)">${icon('help')}</button>
           <button class="ghost icon-only theme-toggle" type="button" aria-label="配色を切り替え" title="配色を切り替え"></button>
         </div>
       </header>
 
       <div class="transport">
         <div class="transport-main">
+          <button class="ghost icon-only" type="button" data-act="back" aria-label="1世代戻す" title="1世代戻す (,)" disabled>${icon('back')}</button>
           <button class="play primary-ghost" type="button" data-act="play" aria-label="再生"></button>
-          <button class="ghost icon-only" type="button" data-act="step" aria-label="1世代進める" title="1世代進める">${icon('step')}</button>
-          <button class="ghost icon-only" type="button" data-act="clear" aria-label="消去" title="消去">${icon('clear')}</button>
-          <button class="ghost icon-only" type="button" data-act="random" aria-label="ランダム配置" title="ランダム配置">${icon('random')}</button>
+          <button class="ghost icon-only" type="button" data-act="step" aria-label="1世代進める" title="1世代進める (.)">${icon('step')}</button>
+          <button class="ghost icon-only" type="button" data-act="clear" aria-label="消去" title="消去 (c)">${icon('clear')}</button>
+          <button class="ghost icon-only" type="button" data-act="random" aria-label="ランダム配置" title="ランダム配置 (r)">${icon('random')}</button>
         </div>
         <div class="readouts">
           <span class="chip"><span class="chip-key">世代</span><span class="chip-value" data-gen>0</span></span>
@@ -89,7 +91,9 @@ export function mountApp(root: HTMLElement): void {
         </label>
         <div class="transport-end">
           <button class="ghost" type="button" data-act="share">${icon('share')}<span>共有</span></button>
+          <button class="ghost" type="button" data-act="import">${icon('upload')}<span>読込</span></button>
           <button class="ghost" type="button" data-act="export">${icon('download')}<span>RLE</span></button>
+          <button class="ghost" type="button" data-act="png">${icon('image')}<span>画像</span></button>
         </div>
       </div>
 
@@ -137,6 +141,41 @@ export function mountApp(root: HTMLElement): void {
       </section>
     </div>
     <div class="toast" data-toast role="status" aria-live="polite"></div>
+
+    <dialog class="sheet" data-import-dialog aria-label="RLEを読み込む">
+      <form method="dialog" class="sheet-inner">
+        <div class="sheet-head">
+          <h2>RLEを読み込む</h2>
+          <button class="ghost icon-only" type="submit" value="cancel" aria-label="閉じる">${icon('close')}</button>
+        </div>
+        <p class="sheet-note">LifeWiki などのRLEパターンを貼り付けて盤に取り込みます。ルール行があれば反映します。</p>
+        <textarea class="sheet-input" data-import-text spellcheck="false" rows="7" placeholder="x = 3, y = 3, rule = B3/S23&#10;bo$2bo$3o!"></textarea>
+        <span class="sheet-error" data-import-error role="status"></span>
+        <div class="sheet-actions">
+          <button class="ghost" type="submit" value="cancel">取り消す</button>
+          <button class="solid" type="submit" value="load" data-import-load>読み込む</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="sheet" data-help-dialog aria-label="キーボード操作">
+      <form method="dialog" class="sheet-inner">
+        <div class="sheet-head">
+          <h2>キーボード操作</h2>
+          <button class="ghost icon-only" type="submit" aria-label="閉じる">${icon('close')}</button>
+        </div>
+        <dl class="keys">
+          <div><dt><kbd>Space</kbd></dt><dd>再生 / 一時停止</dd></div>
+          <div><dt><kbd>.</kbd> <kbd>→</kbd></dt><dd>1世代進める</dd></div>
+          <div><dt><kbd>,</kbd> <kbd>←</kbd></dt><dd>1世代戻す</dd></div>
+          <div><dt><kbd>c</kbd></dt><dd>盤を消去</dd></div>
+          <div><dt><kbd>r</kbd></dt><dd>ランダム配置 / 種を撒き直す</dd></div>
+          <div><dt><kbd>g</kbd></dt><dd>格子線の表示切替</dd></div>
+          <div><dt><kbd>m</kbd></dt><dd>ライフ系 / 基本CA の切替</dd></div>
+          <div><dt><kbd>?</kbd></dt><dd>この一覧</dd></div>
+        </dl>
+      </form>
+    </dialog>
   `;
 
   const stage = q<HTMLElement>(root, '[data-stage]');
@@ -235,6 +274,7 @@ export function mountApp(root: HTMLElement): void {
     }
     q<HTMLElement>(root, '[data-gen]').textContent = String(lab.generation);
     q<HTMLElement>(root, '[data-pop]').textContent = lab.population().toLocaleString();
+    q<HTMLButtonElement>(root, '[data-act="back"]').disabled = !lab.canBack();
   }
 
   // ---- トースト ----
@@ -417,6 +457,43 @@ export function mountApp(root: HTMLElement): void {
     el.textContent = text;
   }
 
+  // 今見えているキャンバスをPNGに焼いて保存する。
+  function doPng(): void {
+    const canvas = lab.mode === '2d' ? field.el : diagram.el;
+    if (typeof canvas.toDataURL !== 'function') {
+      toast('この環境では画像を書き出せません');
+      return;
+    }
+    let url: string;
+    try {
+      url = canvas.toDataURL('image/png');
+    } catch {
+      toast('画像を書き出せませんでした');
+      return;
+    }
+    const a = root.ownerDocument.createElement('a');
+    a.href = url;
+    a.download = `cellab-${lab.mode}-gen${lab.generation}.png`;
+    a.click();
+    toast('画像を書き出しました');
+  }
+
+  // ---- ダイアログ ----
+
+  const importDialog = q<HTMLDialogElement>(root, '[data-import-dialog]');
+  const helpDialog = q<HTMLDialogElement>(root, '[data-help-dialog]');
+
+  function openDialog(dialog: HTMLDialogElement): void {
+    if (typeof dialog.showModal === 'function') dialog.showModal();
+    else dialog.setAttribute('open', '');
+  }
+
+  function openImport(): void {
+    q<HTMLElement>(root, '[data-import-error]').textContent = '';
+    openDialog(importDialog);
+    q<HTMLTextAreaElement>(root, '[data-import-text]').focus();
+  }
+
   // ---- 配線 ----
 
   q<HTMLElement>(root, '.header-actions').addEventListener('click', (ev) => {
@@ -440,6 +517,10 @@ export function mountApp(root: HTMLElement): void {
       case 'play':
         setRunning(!running);
         break;
+      case 'back':
+        setRunning(false);
+        lab.back();
+        break;
       case 'step':
         lab.step();
         break;
@@ -453,9 +534,34 @@ export function mountApp(root: HTMLElement): void {
       case 'share':
         doShare();
         break;
+      case 'import':
+        openImport();
+        break;
       case 'export':
         doExport();
         break;
+      case 'png':
+        doPng();
+        break;
+    }
+  });
+
+  q<HTMLButtonElement>(root, '[data-act="help"]').addEventListener('click', () =>
+    openDialog(helpDialog),
+  );
+
+  q<HTMLButtonElement>(root, '[data-import-load]').addEventListener('click', (ev) => {
+    const text = q<HTMLTextAreaElement>(root, '[data-import-text]').value;
+    const err = q<HTMLElement>(root, '[data-import-error]');
+    try {
+      const { name } = lab.importRle(text);
+      setRunning(false);
+      setMode('2d');
+      syncRuleInputs();
+      toast(name ? `「${name}」を読み込みました` : 'パターンを読み込みました');
+    } catch {
+      ev.preventDefault();
+      err.textContent = 'RLEとして読み取れませんでした';
     }
   });
 
@@ -504,6 +610,8 @@ export function mountApp(root: HTMLElement): void {
 
   // キーボード操作。入力欄にフォーカスがあるときは奪わない。
   root.ownerDocument.addEventListener('keydown', (ev) => {
+    // モーダルが開いている間はダイアログ側の操作を優先する。
+    if (root.querySelector('dialog[open]')) return;
     const tag = (ev.target as HTMLElement).tagName;
     if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
     switch (ev.key) {
@@ -514,6 +622,14 @@ export function mountApp(root: HTMLElement): void {
       case '.':
       case 'ArrowRight':
         lab.step();
+        break;
+      case ',':
+      case 'ArrowLeft':
+        setRunning(false);
+        lab.back();
+        break;
+      case '?':
+        openDialog(helpDialog);
         break;
       case 'c':
         setRunning(false);

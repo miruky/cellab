@@ -80,6 +80,52 @@ describe('Lab(2次元)', () => {
     lab.step();
     expect(fn).toHaveBeenCalledTimes(1);
   });
+
+  it('1世代戻すと盤と世代が元へ戻る', () => {
+    lab.stampPattern(blinker, 16, 12);
+    expect(lab.canBack()).toBe(false);
+    const before = lab.grid.clone();
+    lab.step();
+    expect(lab.generation).toBe(1);
+    expect(lab.canBack()).toBe(true);
+    lab.back();
+    expect(lab.generation).toBe(0);
+    expect(lab.grid.equals(before)).toBe(true);
+    // 控えを使い切ったら戻れない
+    expect(lab.canBack()).toBe(false);
+    lab.back();
+    expect(lab.generation).toBe(0);
+  });
+
+  it('消去や乱数化で戻る履歴は捨てられる', () => {
+    lab.stampPattern(block, 8, 8);
+    lab.step();
+    expect(lab.canBack()).toBe(true);
+    lab.clear();
+    expect(lab.canBack()).toBe(false);
+  });
+
+  it('RLEを取り込むと盤に中央寄せで載り、ルールも反映される', () => {
+    const rle = '#N test glider\nx = 3, y = 3, rule = B3/S23\nbo$2bo$3o!';
+    const { name } = lab.importRle(rle);
+    expect(name).toBe('test glider');
+    expect(lab.mode).toBe('2d');
+    expect(lab.ruleText).toBe('B3/S23');
+    expect(lab.population()).toBe(5);
+    expect(lab.generation).toBe(0);
+    // 1次元から取り込んでも2次元へ切り替わる
+    lab.setMode('1d');
+    lab.importRle('x = 2, y = 2\n2o$2o!');
+    expect(lab.mode).toBe('2d');
+    expect(lab.population()).toBe(4);
+  });
+
+  it('壊れたRLEは例外になり盤を壊さない', () => {
+    lab.stampPattern(block, 8, 8);
+    const before = lab.grid.clone();
+    expect(() => lab.importRle('これはRLEではない')).toThrow();
+    expect(lab.grid.equals(before)).toBe(true);
+  });
 });
 
 describe('Lab(1次元)', () => {
