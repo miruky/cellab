@@ -22,7 +22,13 @@ export const CATEGORY_LABELS: Record<PatternCategory, string> = {
 
 // LifeWiki で知られる古典パターンを RLE で収録する。周期や移動はテストで検証する。
 export const PATTERNS: readonly Pattern[] = [
-  { id: 'block', name: 'ブロック', category: 'still', description: '最小の静物', rle: 'x = 2, y = 2\n2o$2o!' },
+  {
+    id: 'block',
+    name: 'ブロック',
+    category: 'still',
+    description: '最小の静物',
+    rle: 'x = 2, y = 2\n2o$2o!',
+  },
   {
     id: 'beehive',
     name: '蜂の巣',
@@ -37,9 +43,48 @@ export const PATTERNS: readonly Pattern[] = [
     description: '非対称な静物',
     rle: 'x = 4, y = 4\nb2o$o2bo$bobo$2bo!',
   },
-  { id: 'boat', name: '小舟', category: 'still', description: '小さな静物', rle: 'x = 3, y = 3\n2o$obo$bo!' },
-  { id: 'blinker', name: '点滅器', category: 'oscillator', description: '周期2', rle: 'x = 3, y = 1\n3o!' },
-  { id: 'toad', name: 'ヒキガエル', category: 'oscillator', description: '周期2', rle: 'x = 4, y = 2\nb3o$3o!' },
+  {
+    id: 'boat',
+    name: '小舟',
+    category: 'still',
+    description: '小さな静物',
+    rle: 'x = 3, y = 3\n2o$obo$bo!',
+  },
+  {
+    id: 'tub',
+    name: 'たらい',
+    category: 'still',
+    description: '対称な最小の静物',
+    rle: 'x = 3, y = 3\nbo$obo$bo!',
+  },
+  {
+    id: 'ship',
+    name: '船',
+    category: 'still',
+    description: '対角の静物',
+    rle: 'x = 3, y = 3\n2o$obo$b2o!',
+  },
+  {
+    id: 'pond',
+    name: '池',
+    category: 'still',
+    description: '中が空いた静物',
+    rle: 'x = 4, y = 4\nb2o$o2bo$o2bo$b2o!',
+  },
+  {
+    id: 'blinker',
+    name: '点滅器',
+    category: 'oscillator',
+    description: '周期2',
+    rle: 'x = 3, y = 1\n3o!',
+  },
+  {
+    id: 'toad',
+    name: 'ヒキガエル',
+    category: 'oscillator',
+    description: '周期2',
+    rle: 'x = 4, y = 2\nb3o$3o!',
+  },
   {
     id: 'beacon',
     name: '灯台',
@@ -54,13 +99,33 @@ export const PATTERNS: readonly Pattern[] = [
     description: '周期3の大型振動子',
     rle: 'x = 13, y = 13\n2b3o3b3o2$o4bobo4bo$o4bobo4bo$o4bobo4bo$2b3o3b3o2$2b3o3b3o$o4bobo4bo$o4bobo4bo$o4bobo4bo2$2b3o3b3o!',
   },
-  { id: 'glider', name: 'グライダー', category: 'spaceship', description: '斜めに進む最小の宇宙船', rle: 'x = 3, y = 3\nbo$2bo$3o!' },
+  {
+    id: 'pentadecathlon',
+    name: 'ペンタデカスロン',
+    category: 'oscillator',
+    description: '周期15の長い振動子',
+    rle: 'x = 10, y = 3\n2bo4bo2b$2ob4ob2o$2bo4bo2b!',
+  },
+  {
+    id: 'glider',
+    name: 'グライダー',
+    category: 'spaceship',
+    description: '斜めに進む最小の宇宙船',
+    rle: 'x = 3, y = 3\nbo$2bo$3o!',
+  },
   {
     id: 'lwss',
     name: '軽量級宇宙船',
     category: 'spaceship',
     description: '水平に進む宇宙船 (LWSS)',
     rle: 'x = 5, y = 4\nbo2bo$o$o3bo$4o!',
+  },
+  {
+    id: 'mwss',
+    name: '中量級宇宙船',
+    category: 'spaceship',
+    description: '水平に進む宇宙船 (MWSS)',
+    rle: 'x = 6, y = 5\n3bo$bo3bo$o$o4bo$5o!',
   },
   {
     id: 'gosper-gun',
