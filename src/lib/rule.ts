@@ -22,7 +22,12 @@ export const RULE_PRESETS: readonly RulePreset[] = [
   { name: 'Replicator', rule: 'B1357/S1357', note: 'あらゆる図形が自己複製する' },
   { name: 'Life without Death', rule: 'B3/S012345678', note: '一度生きたら死なない' },
   { name: 'Maze', rule: 'B3/S12345', note: '迷路状の構造へ育つ' },
+  { name: 'Mazectric', rule: 'B3/S1234', note: 'Mazeより通路が長く直線的な迷路' },
   { name: 'Diamoeba', rule: 'B35678/S5678', note: 'アメーバ状の塊が伸び縮みする' },
+  { name: '2x2', rule: 'B36/S125', note: '2×2のブロックを単位に進化する' },
+  { name: 'Coral', rule: 'B3/S45678', note: 'サンゴ状の塊がゆっくり広がる' },
+  { name: 'Anneal', rule: 'B4678/S35678', note: '多数決で境界がなめらかになる(焼きなまし)' },
+  { name: 'Gnarl', rule: 'B1/S1', note: '一点から樹状の模様が育つ単純規則' },
 ];
 
 function parseCounts(text: string): Set<number> {
